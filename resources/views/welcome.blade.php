@@ -16,8 +16,8 @@
         <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16 items-center">
-
-                <div class="flex items-center gap-2">
+                    <!-- Brand Logo -->
+                    <div class="flex items-center gap-2">
                         <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c-1.2 0-2.4.6-3 1.7a3 3 0 00-3.6 4.1 3.5 3.5 0 00.6 6.7V17c0 1.1.9 2 2 2h8a2 2 0 002-2v-1.5a3.5 3.5 0 00.6-6.7 3 3 0 00-3.6-4.1A3.5 3.5 0 0012 3zM7.5 12h9M9.5 15.5h5"></path>
                         </svg>
@@ -86,26 +86,23 @@
 
             <!-- Recipe List -->
             @php
-                // Fetch recipes directly to display them on the welcome page
                 $landingRecipes = \App\Models\Recipe::latest()->get();
             @endphp
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 @forelse ($landingRecipes as $r)
                     @php
-                        // Convert the comma-separated categories to a Javascript-readable array format
                         $categoriesArray = $r->category ? explode(', ', $r->category) : [];
                         $categoriesJson = json_encode($categoriesArray);
                     @endphp
                     
-                    <!-- Card Filtered dynamic showing using Alpine -->
                     <div 
                         x-show="activeCategory === 'All' || {{ $categoriesJson }}.includes(activeCategory)"
                         x-transition:enter="transition ease-out duration-300"
                         x-transition:enter-start="opacity-0 transform scale-95"
                         x-transition:enter-end="opacity-100 transform scale-100"
                         class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 hover:border-blue-400 overflow-hidden transition-all duration-300 flex flex-col group cursor-pointer"
-                        onclick="window.location.href='{{ route('login') }}'">
+                        onclick="openPublicViewModal({{ json_encode($r) }})">
                         
                         <!-- Recipe Thumbnail Image -->
                         <div class="h-56 overflow-hidden relative">
@@ -119,7 +116,6 @@
                         <!-- Card Body Details -->
                         <div class="p-6 flex-1 flex flex-col justify-between">
                             <div>
-                                <!-- Display Categories -->
                                 @if($r->category)
                                     <div class="flex flex-wrap gap-1 mb-3">
                                         @foreach($categoriesArray as $cat)
@@ -155,11 +151,86 @@
             </div>
         </section>
 
+        <!-- VIEW-ONLY PUBLIC RECIPE DETAILS MODAL (No Edit, No Delete) -->
+        <div id="public-recipe-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 px-4" style="display: none;">
+            <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative">
+                
+                <!-- Header Image/Banner -->
+                <div class="relative">
+                    <img id="modal-image" class="w-full h-72 object-cover rounded-t-2xl">
+                    <button onclick="document.getElementById('public-recipe-modal').style.display = 'none'" class="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full w-9 h-9 flex items-center justify-center font-bold text-lg transition shadow-md">&times;</button>
+                </div>
+
+                <!-- Recipe Content Body -->
+                <div class="p-8">
+                    <!-- Title & Basic Info -->
+                    <h2 id="modal-title" class="text-3xl font-extrabold text-gray-900"></h2>
+                    
+                    <div class="flex items-center gap-4 mt-3 text-gray-600">
+                        <span class="bg-gray-100 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide">Servings: <span id="modal-servings" class="text-blue-600"></span></span>
+                        <span class="bg-gray-100 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide">Prep Time: <span id="modal-time" class="text-blue-600"></span> mins</span>
+                    </div>
+
+                    <!-- Ingredients & Instructions Panels -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8 border-t pt-6">
+                        <div>
+                            <h3 class="font-extrabold text-lg text-gray-900 border-b pb-2 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                                Ingredients
+                            </h3>
+                            <p id="modal-ingredients" class="mt-4 text-gray-700 whitespace-pre-line text-sm leading-relaxed"></p>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-lg text-gray-900 border-b pb-2 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Instructions
+                            </h3>
+                            <p id="modal-instructions" class="mt-4 text-gray-700 whitespace-pre-line text-sm leading-relaxed"></p>
+                        </div>
+                    </div>
+
+                    <!-- Footer / CTA -->
+                    <div class="mt-8 pt-6 border-t flex justify-end gap-3">
+                        <button onclick="document.getElementById('public-recipe-modal').style.display = 'none'" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-2.5 rounded-xl font-bold transition text-sm">
+                            Close Window
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer -->
         <footer class="bg-white border-t mt-20 py-8">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400 text-sm">
                 <p>&copy; {{ date('Y') }} DishLen. All rights reserved.</p>
             </div>
         </footer>
+
+        <!-- Javascript to Populate Public Modal Dynamic Details -->
+        <script>
+            function openPublicViewModal(recipe) {
+                // Set text outputs
+                document.getElementById('modal-title').innerText = recipe.name || 'Untitled Recipe';
+                document.getElementById('modal-servings').innerText = recipe.base_servings || 'N/A';
+                document.getElementById('modal-time').innerText = recipe.prep_time_minutes || '0';
+                document.getElementById('modal-ingredients').innerText = recipe.ingredients || 'No ingredients listed.';
+                document.getElementById('modal-instructions').innerText = recipe.instructions || 'No instructions provided.';
+                
+                // Set Image source path
+                const imgElement = document.getElementById('modal-image');
+                imgElement.src = recipe.image_path ? '/storage/' + recipe.image_path : '/images/default-recipe.jpg';
+
+                // Display Modal Box overlay
+                document.getElementById('public-recipe-modal').style.display = 'flex';
+            }
+
+            // Close modal when clicked outside
+            window.onclick = function(event) {
+                const modal = document.getElementById('public-recipe-modal');
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        </script>
     </body>
 </html>
