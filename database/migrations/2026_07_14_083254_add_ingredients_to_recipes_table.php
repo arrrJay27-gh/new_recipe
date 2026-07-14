@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('recipes', function (Blueprint $table) {
-            //
+            // Adds the ingredients column as a text field (to support multiple lines)
+            $table->text('ingredients')->nullable()->after('category');
         });
     }
 
@@ -22,7 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('recipes', function (Blueprint $table) {
-            //
+            // Drop the column if the migration is rolled back
+            $table->dropColumn('ingredients');
         });
     }
 };
