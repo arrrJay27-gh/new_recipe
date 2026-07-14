@@ -2,13 +2,19 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RecipeController;
+use App\Models\Recipe; // Imported the Recipe Model
+
+Route::resource('recipes', RecipeController::class);
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+// Updated this route to fetch and pass real data to your dashboard
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $recipes = Recipe::all();
+    return view('dashboard', compact('recipes'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
