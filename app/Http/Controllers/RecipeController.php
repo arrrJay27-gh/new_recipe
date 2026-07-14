@@ -26,28 +26,43 @@ class RecipeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
-{
-    // Convert arrays into structured line-by-line text blocks
-    $ingredientsText = implode("\n", $request->input('ingredients', []));
-    $instructionsText = implode("\n", $request->input('instructions', []));
+    {
+        // 1. Validate the incoming form fields
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'base_servings' => 'nullable|integer',
+            'prep_time_minutes' => 'nullable|integer',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
 
-    $recipe = new Recipe();
-    $recipe->name = $request->name;
-    $recipe->category = $request->category;
-    $recipe->ingredients = $ingredientsText;      // Saved clean!
-    $recipe->instructions = $instructionsText;    // Saved clean!
-    $recipe->base_servings = $request->base_servings;
-    $recipe->prep_time_minutes = $request->prep_time_minutes;
+        // 2. Format the arrays into clean text strings
+        $categoryString = implode(', ', $request->input('category', []));
+        $ingredientsText = implode("\n", $request->input('ingredients', []));
+        $instructionsText = implode("\n", $request->input('instructions', []));
 
-    if ($request->hasFile('image')) {
-        $recipe->image_path = $request->file('image')->store('recipes', 'public');
+        // 3. Create a new recipe instance
+        $recipe = new Recipe();
+        $recipe->name = $request->name;
+        $recipe->category = $categoryString; // Converts the array into a clean string (e.g., "Lunch, Dinner")
+        $recipe->ingredients = $ingredientsText;
+        $recipe->instructions = $instructionsText;
+        $recipe->base_servings = $request->base_servings;
+        $recipe->prep_time_minutes = $request->prep_time_minutes;
+
+        // 4. Handle image upload if a file was selected
+        if ($request->hasFile('image')) {
+            $recipe->image_path = $request->file('image')->store('recipes', 'public');
+        }
+
+        // 5. Save and redirect
+        $recipe->save();
+
+        return redirect()->route('dashboard')->with('success', 'Recipe created successfully!');
     }
-
-    $recipe->save();
-
-    return redirect()->back()->with('success', 'Recipe created successfully!');
-}
 
     /**
      * Display the specified resource.
