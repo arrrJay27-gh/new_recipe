@@ -1,9 +1,5 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Recipe Dashboard') }}
-        </h2>
-    </x-slot>
+    
 
     <style>
         /* Base Variables */
@@ -256,7 +252,6 @@
                 <a href="#" class="active">📊 Dashboard</a>
                 <a href="#">📖 My Recipes</a>
                 <a href="#">❤️ Favorites</a>
-                <a href="#">🛒 Grocery List</a>
                 <a href="#">⚙️ Settings</a>
             </nav>
         </aside>
