@@ -1,326 +1,140 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Recipe Dashboard') }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Recipe Dashboard') }}
+            </h2>
+            <!-- Triggers the modal using plain JavaScript in case Alpine's scope is blocked -->
+            <button onclick="document.getElementById('add-recipe-modal').style.display = 'flex'" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 font-bold z-50">
+                + Add Recipe
+            </button>
+        </div>
     </x-slot>
 
-    <style>
-        /* Base Variables */
-        :root {
-            --bg-primary: #f4f7f6;
-            --bg-sidebar: #1e293b;
-            --text-light: #ffffff;
-            --text-dark: #334155;
-            --accent-orange: #ff6b6b;
-            --accent-green: #10b981;
-            --card-bg: #ffffff;
-        }
-
-        /* Dashboard Layout */
-        .dashboard-container {
-            display: flex;
-            min-height: calc(100vh - 65px); /* Offsets standard Laravel nav bar height */
-            background-color: var(--bg-primary);
-            color: var(--text-dark);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        /* Sidebar Styling */
-        .sidebar {
-            width: 260px;
-            background-color: var(--bg-sidebar);
-            color: var(--text-light);
-            padding: 2rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-        }
-
-        .logo h2 {
-            font-size: 1.5rem;
-            margin-bottom: 3rem;
-            font-weight: 700;
-        }
-
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .nav-links a {
-            color: #94a3b8;
-            text-decoration: none;
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        .nav-links a:hover, .nav-links a.active {
-            background-color: #334155;
-            color: var(--text-light);
-        }
-
-        /* Main Content Area Styling */
-        .main-content {
-            flex: 1;
-            padding: 2.5rem;
-            overflow-y: auto;
-        }
-
-        /* Header */
-        .top-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .welcome-text h1 {
-            font-size: 2rem;
-            color: #0f172a;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .welcome-text p {
-            color: #64748b;
-            margin-top: 0.2rem;
-        }
-
-        .search-bar input {
-            padding: 0.8rem 1.5rem;
-            width: 300px;
-            border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            outline: none;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            background-color: #ffffff;
-        }
-
-        /* Stats Cards Section */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .stat-card {
-            background-color: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border-left: 5px solid var(--accent-orange);
-        }
-
-        .stat-card h3 {
-            font-size: 0.9rem;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin: 0;
-        }
-
-        .stat-number {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #0f172a;
-            margin-top: 0.5rem;
-            line-height: 1;
-        }
-
-        /* Recipe Grid Section */
-        .recipe-section h2 {
-            margin-bottom: 1.5rem;
-            color: #0f172a;
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .recipe-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-        }
-
-        .recipe-card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
-        }
-
-        .recipe-card:hover {
-            transform: translateY(-5px);
-        }
-
-        /* Background Gradients acting as placeholders for images */
-        .card-image {
-            height: 180px;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .img-pasta { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
-        .img-tacos { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
-        .img-pancakes { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
-
-        .card-content {
-            padding: 1.5rem;
-        }
-
-        .tag {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.6rem;
-            border-radius: 5px;
-            font-weight: 600;
-            text-transform: uppercase;
-            display: inline-block;
-        }
-
-        .tag.easy { background-color: #e6f4ea; color: var(--accent-green); }
-        .tag.medium { background-color: #fff3cd; color: #856404; }
-
-        .card-content h3 {
-            font-size: 1.2rem;
-            margin: 0.8rem 0 0.4rem 0;
-            color: #0f172a;
-            font-weight: 700;
-        }
-
-        .time {
-            font-size: 0.85rem;
-            color: #64748b;
-            margin-bottom: 1.5rem;
-        }
-
-        .view-btn {
-            display: inline-block;
-            width: 100%;
-            text-align: center;
-            background-color: var(--accent-orange);
-            color: white;
-            text-decoration: none;
-            padding: 0.7rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: background-color 0.2s;
-        }
-
-        .view-btn:hover {
-            background-color: #ff5252;
-        }
-
-        /* Responsive Design Adjustments */
-        @media (max-width: 768px) {
-            .dashboard-container {
-                flex-direction: column;
-            }
-            .sidebar {
-                width: 100%;
-                padding: 1.5rem;
-            }
-            .logo h2 {
-                margin-bottom: 1.5rem;
-            }
-            .nav-links {
-                flex-direction: row;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-            .main-content {
-                padding: 1.5rem;
-            }
-            .search-bar {
-                width: 100%;
-            }
-            .search-bar input {
-                width: 100%;
-            }
-        }
-    </style>
-
-    <div class="dashboard-container">
-        <aside class="sidebar">
-            <div class="logo">
-                <h2>🍳 FlavorForge</h2>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            
+            <!-- ADD MODAL (Targeted by ID and handled by simple JS fallback) -->
+            <div id="add-recipe-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
+                <div class="bg-white p-6 rounded-lg w-full max-w-lg shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 text-gray-900">Add New Recipe</h2>
+                    <form action="{{ route('recipes.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Name</label>
+                            <input type="text" name="name" class="w-full border rounded p-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Category</label>
+                            <select name="category" class="w-full border rounded p-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="breakfast">Breakfast</option>
+                                <option value="lunch">Lunch</option>
+                                <option value="dinner">Dinner</option>
+                                <option value="desserts">Desserts</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Instructions</label>
+                            <textarea name="instructions" class="w-full border rounded p-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Servings</label>
+                                <input type="number" name="base_servings" class="w-full border rounded p-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Prep Time (mins)</label>
+                                <input type="number" name="prep_time_minutes" class="w-full border rounded p-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Recipe Image</label>
+                            <input type="file" name="image" class="w-full">
+                        </div>
+                        <div class="flex justify-end gap-2">
+                            <button type="button" onclick="document.getElementById('add-recipe-modal').style.display = 'none'" class="px-4 py-2 text-gray-600 font-semibold hover:bg-gray-100 rounded">Cancel</button>
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">Save</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <nav class="nav-links">
-                <a href="#" class="active">📊 Dashboard</a>
-                <a href="#">📖 My Recipes</a>
-                <a href="#">❤️ Favorites</a>
-                <a href="#">🛒 Grocery List</a>
-                <a href="#">⚙️ Settings</a>
-            </nav>
-        </aside>
 
-        <main class="main-content">
-            <header class="top-header">
-                <div class="welcome-text">
-                    <h1>Welcome Back, Chef!</h1>
-                    <p>What are we cooking today?</p>
-                </div>
-                <div class="search-bar">
-                    <input type="text" placeholder="Search recipes, ingredients...">
-                </div>
-            </header>
-
-            <section class="stats-grid">
-                <div class="stat-card">
-                    <h3>Total Recipes</h3>
-                    <p class="stat-number">42</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Favorites</h3>
-                    <p class="stat-number">18</p>
-                </div>
-                <div class="stat-card">
-                    <h3>This Week's Cooks</h3>
-                    <p class="stat-number">5</p>
-                </div>
-            </section>
-
-            <section class="recipe-section">
-                <h2>Featured Recipes</h2>
-                <div class="recipe-grid">
-                    <div class="recipe-card">
-                        <div class="card-image img-pasta"></div>
-                        <div class="card-content">
-                            <span class="tag easy">Easy</span>
-                            <h3>Creamy Garlic Tuscan Salmon</h3>
-                            <p class="time">⏱️ 25 mins</p>
-                            <a href="#" class="view-btn">View Recipe</a>
+            <!-- VIEW MODAL -->
+            <div id="view-recipe-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
+                <div class="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <img id="view-image" class="w-full h-64 object-cover rounded-t-lg hidden">
+                    
+                    <div class="p-8">
+                        <h2 id="view-name" class="text-3xl font-bold text-gray-900"></h2>
+                        <div class="flex items-center gap-4 mt-2 text-gray-600">
+                            <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">Servings: <span id="view-servings"></span></span>
+                            <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">Time: <span id="view-time"></span> mins</span>
                         </div>
-                    </div>
+                        
+                        <h3 class="mt-6 font-bold text-lg border-b pb-2 text-gray-800">Instructions</h3>
+                        <p id="view-instructions" class="mt-4 text-gray-700 whitespace-pre-line"></p>
 
-                    <div class="recipe-card">
-                        <div class="card-image img-tacos"></div>
-                        <div class="card-content">
-                            <span class="tag medium">Medium</span>
-                            <h3>Street-Style Beef Tacos</h3>
-                            <p class="time">⏱️ 40 mins</p>
-                            <a href="#" class="view-btn">View Recipe</a>
-                        </div>
-                    </div>
-
-                    <div class="recipe-card">
-                        <div class="card-image img-pancakes"></div>
-                        <div class="card-content">
-                            <span class="tag easy">Easy</span>
-                            <h3>Fluffy Blueberry Pancakes</h3>
-                            <p class="time">⏱️ 15 mins</p>
-                            <a href="#" class="view-btn">View Recipe</a>
-                        </div>
+                        <button onclick="document.getElementById('view-recipe-modal').style.display = 'none'" class="mt-8 w-full bg-gray-800 text-white py-2 rounded-lg hover:bg-black font-semibold">
+                            Close
+                        </button>
                     </div>
                 </div>
-            </section>
-        </main>
+            </div>
+            
+            <!-- Recipe List -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                @forelse ($recipes as $r)
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden relative border">
+                        @if($r->image_path)
+                            <img src="{{ asset('storage/' . $r->image_path) }}" class="w-full h-48 object-cover">
+                        @else
+                            <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400">No Image</div>
+                        @endif
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900">{{ $r->name }}</h3>
+                            <button onclick="openViewModal({{ json_encode($r) }})" class="mt-4 text-blue-600 font-semibold underline hover:text-blue-800">
+                                View Details →
+                            </button>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-3 text-center py-12">
+                        <p class="text-gray-500 text-lg">No recipes found. Click "+ Add Recipe" to get started!</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
     </div>
+
+    <!-- Vanilla Javascript Handlers to completely bypass Alpine scope problems -->
+    <script>
+        function openViewModal(recipe) {
+            document.getElementById('view-name').innerText = recipe.name || 'Untitled Recipe';
+            document.getElementById('view-servings').innerText = recipe.base_servings || 'N/A';
+            document.getElementById('view-time').innerText = recipe.prep_time_minutes || '0';
+            document.getElementById('view-instructions').innerText = recipe.instructions || 'No instructions provided.';
+            
+            const imgEl = document.getElementById('view-image');
+            if (recipe.image_path) {
+                imgEl.src = '/storage/' + recipe.image_path;
+                imgEl.classList.remove('hidden');
+            } else {
+                imgEl.classList.add('hidden');
+            }
+
+            document.getElementById('view-recipe-modal').style.display = 'flex';
+        }
+
+        // Close modals if user clicks outside of them
+        window.onclick = function(event) {
+            const addModal = document.getElementById('add-recipe-modal');
+            const viewModal = document.getElementById('view-recipe-modal');
+            if (event.target == addModal) {
+                addModal.style.display = "none";
+            }
+            if (event.target == viewModal) {
+                viewModal.style.display = "none";
+            }
+        }
+    </script>
 </x-app-layout>
