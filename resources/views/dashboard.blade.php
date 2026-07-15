@@ -1,7 +1,4 @@
 <x-app-layout>
-<<<<<<< HEAD
-    
-=======
     <x-slot name="header">
         <div class="flex justify-between items-center w-full">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -15,7 +12,6 @@
             </div>
         </div>
     </x-slot>
->>>>>>> 5094eb769bffc158b5a31bfcc36e7c6c1d0f146b
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -128,16 +124,6 @@
                     </form>
                 </div>
             </div>
-<<<<<<< HEAD
-            <nav class="nav-links">
-                <a href="#" class="active">📊 Dashboard</a>
-                <a href="#">📖 My Recipes</a>
-                <a href="#">❤️ Favorites</a>
-                <a href="#">⚙️ Settings</a>
-            </nav>
-        </aside>
-=======
->>>>>>> 5094eb769bffc158b5a31bfcc36e7c6c1d0f146b
 
             <!-- VIEW / EDIT / DELETE DETAILS MODAL -->
             <div id="view-recipe-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
@@ -270,7 +256,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                 @forelse ($recipes as $r)
                     <!-- Added smooth transition, scale, custom border, and shadow hover effects -->
-                    <div class="bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-blue-500 overflow-hidden relative border transition-all duration-300 ease-in-out cursor-pointer group" onclick="openViewModal({{ json_encode($r) }})">
+                    <div class="bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-blue-500 overflow-hidden relative border transition-all duration-300 ease-in-out cursor-pointer group" @click="openViewModal({{ json_encode($r) }})">
                         @if($r->image_path)
                             <!-- Image slightly zooms on hover using group-hover -->
                             <div class="overflow-hidden h-48 w-full">
