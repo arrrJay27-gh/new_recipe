@@ -11,11 +11,32 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                </div>
+<div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+    <!-- All Menu Link -->
+    <x-nav-link :href="route('dashboard')" :active="!request()->has('category') && request()->routeIs('dashboard')">
+        {{ __('All Menu') }}
+    </x-nav-link>
+
+    <!-- Breakfast Link -->
+    <x-nav-link :href="route('dashboard', ['category' => 'Breakfast'])" :active="request()->query('category') === 'Breakfast'">
+        {{ __('Breakfast') }}
+    </x-nav-link>
+
+    <!-- Lunch Link -->
+    <x-nav-link :href="route('dashboard', ['category' => 'Lunch'])" :active="request()->query('category') === 'Lunch'">
+        {{ __('Lunch') }}
+    </x-nav-link>
+
+    <!-- Dinner Link -->
+    <x-nav-link :href="route('dashboard', ['category' => 'Dinner'])" :active="request()->query('category') === 'Dinner'">
+        {{ __('Dinner') }}
+    </x-nav-link>
+
+    <!-- Dessert Link -->
+    <x-nav-link :href="route('dashboard', ['category' => 'Desserts'])" :active="request()->query('category') === 'Desserts'">
+        {{ __('Dessert') }}
+    </x-nav-link>
+</div>
             </div>
 
             <!-- Settings Dropdown -->

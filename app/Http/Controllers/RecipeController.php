@@ -6,18 +6,23 @@ use App\Models\Recipe;
 use Illuminate\Http\Request;
 
 class RecipeController extends Controller
+{  
+
+public function index(Request $request)
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+    // Simulan ang query nang walang user_id filter
+    $query = Recipe::query();
+
+    // I-filter gamit ang category parameter kung mayroon sa URL
+    if ($request->filled('category')) {
+        $category = $request->query('category');
+        $query->where('category', 'LIKE', '%' . $category . '%');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    $recipes = $query->latest()->get();
+
+    return view('dashboard', compact('recipes'));
+}
     public function create()
     {
         //

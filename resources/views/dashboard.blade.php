@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center w-full">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Recipe Dashboard') }}
+                {{ __('Recipe Menu') }}
             </h2>
             <div class="flex items-center gap-4">
                 <!-- Changed z-50 to z-10 so the user dropdown can display on top of it -->
