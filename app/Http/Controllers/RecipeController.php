@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Recipe;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class RecipeController extends Controller
 {  
@@ -130,8 +131,17 @@ public function index(Request $request)
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
+    public function destroy(Recipe $recipe)
+{
+    // Burahin ang recipe image sa storage kung mayroon man
+    if ($recipe->image) {
+        Storage::disk('public')->delete($recipe->image);
     }
+
+    // Burahin ang record sa database
+    $recipe->delete();
+
+    // I-redirect pabalik sa dashboard na may success message
+    return redirect()->route('dashboard')->with('success', 'Recipe deleted successfully.');
+}
 }

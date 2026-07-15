@@ -135,7 +135,7 @@
                         <button onclick="document.getElementById('view-recipe-modal').style.display = 'none'" class="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">✕</button>
                     </div>
 
-                    <!-- READ-ONLY MODE -->
+                    <!-- READ-ONLY MODE (Inalis ang maling foreach loop dito) -->
                     <div id="modal-view-mode" class="p-8">
                         <h2 id="view-name" class="text-3xl font-bold text-gray-900"></h2>
                         
@@ -155,15 +155,16 @@
                             </div>
                         </div>
 
-                        <div class="mt-8 pt-4 border-t flex justify-between gap-4">
-                            <!-- Delete Button -->
-                            <form id="delete-recipe-form" method="POST" onsubmit="return confirm('Are you sure you want to delete this recipe?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold">
-                                    Delete Recipe
-                                </button>
-                            </form>
+                        <div class="mt-8 pt-4 border-t flex justify-between items-center gap-4">
+                            <!-- Safe Dynamic Delete Button Form (Gagana kahit anong recipe ang i-click) -->
+                            <!-- Safe Dynamic Delete Button Form -->
+<form id="delete-recipe-form" method="POST" onsubmit="return confirm('Are you sure you want to delete this recipe?');" style="display: inline;">
+    @csrf
+    @method('DELETE')
+    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg font-semibold transition-colors duration-200 shadow-md">
+        Delete Recipe
+    </button>
+</form>
 
                             <div class="flex gap-2">
                                 <button onclick="toggleEditMode(true)" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-lg font-semibold">
@@ -252,7 +253,7 @@
                 </div>
             </div>
             
-            <!-- Recipe List Card Grid -->
+            <!-- Recipe List Card Grid (Dito lang dapat umiikot ang Loop) -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                 @forelse ($recipes as $r)
                     <!-- Added smooth transition, scale, custom border, and shadow hover effects -->
@@ -330,7 +331,7 @@
                 checkbox.checked = recipeCategories.includes(checkbox.value);
             });
 
-            // Dynamically assign target routes
+            // Dynamically assign target routes (Awtomatikong lalagyan ng tamang ID ang form links)
             document.getElementById('edit-recipe-form').action = `/recipes/${recipe.id}`;
             document.getElementById('delete-recipe-form').action = `/recipes/${recipe.id}`;
 
